@@ -50,7 +50,7 @@ if [ -z "$local_patches" ];then
     if [ -d patches ];then
         ( cd patches; git fetch; git reset --hard; git checkout origin/$localManifestBranch)
     else
-        git clone https://github.com/TrebleDroid/treble_patches.git patches -b $localManifestBranch
+        git clone https://github.com/phhusson/treble_patches.git patches -b $localManifestBranch
     fi
 else
     rm -Rf patches
