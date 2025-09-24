@@ -26,5 +26,7 @@ sudo docker run -it --rm \
 
 ```
 cd /workspace
+git config --global user.name "builder"
+git config --global user.email "builder@example.com"
 ./build-rom-y.sh android-16.0 crDroid https://github.com/crdroidandroid/android.git 16.0
 ```

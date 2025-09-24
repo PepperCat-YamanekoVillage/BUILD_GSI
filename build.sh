@@ -43,8 +43,7 @@ if [ -d .repo/local_manifests ] ;then
 	( cd .repo/local_manifests; git fetch; git reset --hard; git checkout origin/$localManifestBranch)
 else
     git clone https://github.com/TrebleDroid/treble_manifest.git .repo/local_manifests -b $localManifestBranch
-    rm -f .repo/local_manifests/remove.xml
-    sed -i '/remote.*name="github"/d' .repo/manifests/*.xml
+    rm -f .repo/local_manifests/replace.xml
     repo sync -c -j6 --force-sync --no-tags --no-clone-bundle
 fi
 
