@@ -29,4 +29,4 @@ WORKDIR /home/builder
 # キャッシュ領域
 RUN mkdir -p /home/builder/.ccache
 ENV USE_CCACHE=1
-ENV CCACHE_MAXSIZE=30GB
+ENV CCACHE_MAXSIZE=50GB

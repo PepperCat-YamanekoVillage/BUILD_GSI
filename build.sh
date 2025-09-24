@@ -53,21 +53,12 @@ fi
 
 bash apply-patches.sh ./
 
-cd device/phh/treble
-bash generate.sh $rom
+(cd device/phh/treble; bash generate.sh vendor/$rom/config/common_full_phone.mk)
 
 . build/envsetup.sh
 
-buildVariant() {
-	lunch $1
-	make WITHOUT_CHECK_API=true BUILD_NUMBER=$rom_fp installclean
-	make WITHOUT_CHECK_API=true BUILD_NUMBER=$rom_fp -j$jobs systemimage
-	make WITHOUT_CHECK_API=true BUILD_NUMBER=$rom_fp vndk-test-sepolicy
-	xz -c $OUT/system.img -T$jobs > release/$rom_fp/system-${2}.img.xz
-}
-
 repo manifest -r > release/$rom_fp/manifest.xml
-buildVariant treble_arm64_bgN-userdebug arm64-ab-gapps-nosu
+lunch treble_arm64_bgN android-16.0 userdebug
 
 if [ "$release" == true ];then
     (

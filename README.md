@@ -20,6 +20,7 @@ cd crdroid
 
 sudo docker run -it --rm \
     -v $(pwd):/workspace \
+    --user root \
     treble-rom bash
 ```
 
