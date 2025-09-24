@@ -52,7 +52,8 @@ else
     exit 1
 fi
 
-bash "patches/apply-patches.sh" patches
+find ./patches -type f -name "*.patch" -print0 | sort -z | \
+xargs -0 -n1 -I{} sh -c 'git am "{}" || git am --skip'
 
 cd device/phh/treble
 bash generate.sh $rom
