@@ -43,6 +43,7 @@ if [ -d .repo/local_manifests ] ;then
 	( cd .repo/local_manifests; git fetch; git reset --hard; git checkout origin/$localManifestBranch)
 else
 	git clone https://github.com/TrebleDroid/treble_manifest.git .repo/local_manifests -b $localManifestBranch
+    rm -f .repo/local_manifests/remove.xml
 fi
 
 if [ -f "patches.zip" ]; then

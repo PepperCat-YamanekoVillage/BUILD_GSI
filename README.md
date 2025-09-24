@@ -4,7 +4,7 @@ cd BUILD_GSI
 ```
 
 ```
-curl -L -o https://github.com/TrebleDroid/treble_experimentations/releases/download/ci-20250617/patches-for-developers.zip
+curl -L -o patches-for-developers.zip https://github.com/TrebleDroid/treble_experimentations/releases/download/ci-20250617/patches-for-developers.zip
 ```
 
 ```
