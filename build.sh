@@ -45,15 +45,13 @@ repo sync -c -j$(nproc --all) --force-sync --no-clone-bundle --no-tags --optimiz
 if [ -f "patches.zip" ]; then
     echo "Using local patches.zip..."
     rm -Rf patches
-    mkdir patches
-    unzip -q patches.zip -d patches
+    unzip -q patches.zip
 else
     echo "patches.zip not found. Please provide it in the current directory."
     exit 1
 fi
 
-find ./patches -type f -name "*.patch" -print0 | sort -z | \
-xargs -0 -n1 -I{} sh -c 'git am "{}" || git am --skip'
+bash apply-patches.sh
 
 cd device/phh/treble
 bash generate.sh $rom

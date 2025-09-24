@@ -5,6 +5,8 @@ cd BUILD_GSI
 
 ```
 mkdir crdroid
+cp ./apply-patches.sh ./crdroid/apply-patches.sh
+sudo chmod +x ./crdroid/apply-patches.sh
 cp ./build.sh ./crdroid/build-rom-y.sh
 sudo chmod +x ./crdroid/build-rom-y.sh
 curl -L -o ./crdroid/patches.zip https://github.com/TrebleDroid/treble_experimentations/releases/latest/download/patches-for-developers.zip
