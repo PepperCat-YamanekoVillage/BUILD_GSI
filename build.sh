@@ -42,9 +42,9 @@ repo init -u "$repoURL" -b "$repoBranch"
 if [ -d .repo/local_manifests ] ;then
 	( cd .repo/local_manifests; git fetch; git reset --hard; git checkout origin/$localManifestBranch)
 else
-	git clone https://github.com/TrebleDroid/treble_manifest.git .repo/local_manifests -b $localManifestBranch
-    rm -f .repo/local_manifests/remove.xml
     rm -rf .repo/manifests
+	git clone https://github.com/TrebleDroid/treble_manifest.git .repo/manifests -b $localManifestBranch
+    rm -f .repo/manifests/remove.xml
     repo sync -c -j6 --force-sync --no-tags --no-clone-bundle
 fi
 
