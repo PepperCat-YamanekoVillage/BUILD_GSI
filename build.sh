@@ -34,19 +34,13 @@ else
     fi
 fi
 
-#We don't want to replace from AOSP since we'll be applying patches by hand
+repo init --depth=1 --no-repo-verify -u "$repoURL" -b "$repoBranch" --git-lfs
+
+git clone https://github.com/TrebleDroid/treble_manifest.git .repo/local_manifests -b $localManifestBranch
 rm -f .repo/local_manifests/replace.xml
-
-repo init -u "$repoURL" -b "$repoBranch"
-
-if [ -d .repo/local_manifests ] ;then
-	( cd .repo/local_manifests; git fetch; git reset --hard; git checkout origin/$localManifestBranch)
-else
-    git clone https://github.com/TrebleDroid/treble_manifest.git .repo/local_manifests -b $localManifestBranch
-    rm -f .repo/local_manifests/replace.xml
-    sed -i '/remote.*name="github"/d' .repo/local_manifests/*.xml
-    repo sync -c -j6 --force-sync --no-tags --no-clone-bundle
-fi
+rm -f .repo/local_manifests/remove.xml
+sed -i '/remote.*name="github"/d' .repo/local_manifests/*.xml
+repo sync -c -j$(nproc --all) --force-sync --no-clone-bundle --no-tags --optimized-fetch --prune
 
 if [ -f "patches.zip" ]; then
     echo "Using local patches.zip..."
@@ -58,10 +52,10 @@ else
     exit 1
 fi
 
-bash "$(dirname "$0")/apply-patches.sh" patches
+bash "patches/apply-patches.sh" patches
 
-rm -f device/*/sepolicy/common/private/genfs_contexts
-(cd device/phh/treble; git clean -fdx; bash generate.sh vendor/$rom/config/common_full_phone.mk)
+cd device/phh/treble
+bash generate.sh $rom
 
 . build/envsetup.sh
 
