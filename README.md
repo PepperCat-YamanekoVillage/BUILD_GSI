@@ -4,8 +4,13 @@ cd BUILD_GSI
 ```
 
 ```
+curl -L -o https://github.com/TrebleDroid/treble_experimentations/releases/download/ci-20250617/patches-for-developers.zip
+```
+
+```
 git clone https://github.com/TrebleDroid/treble_experimentations
 cp ./build.sh ./treble_experimentations/build-rom-y.sh
+cp ./patches-for-developers.zip ./treble_experimentations/patches.zip
 sudo chmod +x ./treble_experimentations/build-rom-y.sh
 ```
 

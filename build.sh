@@ -7,7 +7,6 @@ set -e
 
 if [ "$#" -le 1 ];then
     echo "Usage: $0 <android-16.0> <LineageOS> <https://github.com/LineageOS/android.git> <lineage-16.0> [jobs]"
-	echo "Usage: $0 <android-8.1> <carbon|lineage|rr> '# of jobs'"
 	exit 0
 fi
 localManifestBranch=$1
@@ -46,16 +45,14 @@ else
 	git clone https://github.com/TrebleDroid/treble_manifest.git .repo/local_manifests -b $localManifestBranch
 fi
 
-if [ -z "$local_patches" ];then
-    if [ -d patches ];then
-        ( cd patches; git fetch; git reset --hard; git checkout origin/$localManifestBranch)
-    else
-        git clone https://github.com/phhusson/treble_patches.git patches -b $localManifestBranch
-    fi
-else
+if [ -f "patches.zip" ]; then
+    echo "Using local patches.zip..."
     rm -Rf patches
     mkdir patches
-    unzip  "$local_patches" -d patches
+    unzip -q patches.zip -d patches
+else
+    echo "patches.zip not found. Please provide it in the current directory."
+    exit 1
 fi
 
 #We don't want to replace from AOSP since we'll be applying patches by hand
