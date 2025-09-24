@@ -4,13 +4,14 @@ cd BUILD_GSI
 ```
 
 ```
-curl -L -o patches-for-developers.zip https://github.com/TrebleDroid/treble_experimentations/releases/download/ci-20250617/patches-for-developers.zip
+curl -L -o patches-for-developers.zip https://github.com/TrebleDroid/treble_experimentations/releases/latest/download/patches-for-developers.zip
 ```
+ビルドしたいAndroidのバージョンに合わせてください
 
 ```
 git clone https://github.com/TrebleDroid/treble_experimentations
-cp ./build.sh ./treble_experimentations/build-rom-y.sh
 cp ./patches-for-developers.zip ./treble_experimentations/patches.zip
+cp ./build.sh ./treble_experimentations/build-rom-y.sh
 sudo chmod +x ./treble_experimentations/build-rom-y.sh
 ```
 

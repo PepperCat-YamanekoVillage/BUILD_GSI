@@ -44,6 +44,7 @@ if [ -d .repo/local_manifests ] ;then
 else
 	git clone https://github.com/TrebleDroid/treble_manifest.git .repo/local_manifests -b $localManifestBranch
     rm -f .repo/local_manifests/remove.xml
+    repo sync -c -j6 --force-sync --no-tags --no-clone-bundle
 fi
 
 if [ -f "patches.zip" ]; then
@@ -56,22 +57,10 @@ else
     exit 1
 fi
 
-#We don't want to replace from AOSP since we'll be applying patches by hand
-rm -f .repo/local_manifests/replace.xml
-
-repo sync -c -j$jobs --force-sync
-rm -f device/*/sepolicy/common/private/genfs_contexts
-(cd device/phh/treble; git clean -fdx; bash generate.sh $rom)
-
-sed -i -e 's/BOARD_SYSTEMIMAGE_PARTITION_SIZE := 1610612736/BOARD_SYSTEMIMAGE_PARTITION_SIZE := 2147483648/g' device/phh/treble/phhgsi_arm64_a/BoardConfig.mk
-
-if [ -f vendor/rr/prebuilt/common/Android.mk ];then
-    sed -i \
-        -e 's/LOCAL_MODULE := Wallpapers/LOCAL_MODULE := WallpapersRR/g' \
-        vendor/rr/prebuilt/common/Android.mk
-fi
-
 bash "$(dirname "$0")/apply-patches.sh" patches
+
+rm -f device/*/sepolicy/common/private/genfs_contexts
+(cd device/phh/treble; git clean -fdx; bash generate.sh vendor/$rom/config/common_full_phone.mk)
 
 . build/envsetup.sh
 
