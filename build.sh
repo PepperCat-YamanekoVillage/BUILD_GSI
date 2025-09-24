@@ -34,7 +34,7 @@ else
     fi
 fi
 
-repo init --depth=1 --no-repo-verify -u "$repoURL" -b "$repoBranch" --git-lfs
+repo init --no-repo-verify -u "$repoURL" -b "$repoBranch" --git-lfs
 
 git clone https://github.com/TrebleDroid/treble_manifest.git .repo/local_manifests -b $localManifestBranch
 rm -f .repo/local_manifests/replace.xml
@@ -51,7 +51,7 @@ else
     exit 1
 fi
 
-bash apply-patches.sh
+bash apply-patches.sh ./
 
 cd device/phh/treble
 bash generate.sh $rom
