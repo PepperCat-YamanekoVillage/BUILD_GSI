@@ -1,75 +1,86 @@
 #!/bin/bash
+set -e
+
+#----------------------------------------
+# Build crDroid overlay GSI on phhusson/treble_device
+#----------------------------------------
 
 rom_fp="$(date +%y%m%d)"
 originFolder="$(dirname "$0")"
 mkdir -p release/$rom_fp/
-set -e
 
-if [ "$#" -le 1 ];then
-    echo "Usage: $0 <android-16.0> <LineageOS> <https://github.com/LineageOS/android.git> <lineage-16.0> [jobs]"
-	exit 0
+if [ "$#" -le 1 ]; then
+    echo "Usage: $0 <android-16.0> <crDroid> <https://github.com/crdroidandroid/android.git> <16.0> [jobs]"
+    exit 0
 fi
+
 localManifestBranch=$1
 rom=$2
 repoURL=$3
 repoBranch=$4
 
-if [ "$release" == true ];then
-    [ -z "$version" ] && exit 1
-    [ ! -f "$originFolder/release/config.ini" ] && exit 1
-fi
-
-if [ -z "$USER" ];then
-	export USER="$(id -un)"
-fi
-export LC_ALL=C
-
-if [[ -n "$5" ]];then
-	jobs=$5
+# 並列ジョブ数
+if [[ -n "$5" ]]; then
+    jobs=$5
 else
-    if [[ $(uname -s) = "Darwin" ]];then
-        jobs=$(sysctl -n hw.ncpu)
-    elif [[ $(uname -s) = "Linux" ]];then
-        jobs=$(nproc)
-    fi
+    jobs=$(nproc)
 fi
 
+# 環境変数設定
+export LC_ALL=C
+[ -z "$USER" ] && export USER="$(id -un)"
+
+#----------------------------------------
+# Android source 初期化
+#----------------------------------------
 repo init --no-repo-verify -u "$repoURL" -b "$repoBranch" --git-lfs
 
-git clone https://github.com/TrebleDroid/treble_manifest.git .repo/local_manifests -b $localManifestBranch
-rm -f .repo/local_manifests/replace.xml
-rm -f .repo/local_manifests/remove.xml
-sed -i '/remote.*name="github"/d' .repo/local_manifests/*.xml
-repo sync -c -j$(nproc --all) --force-sync --no-clone-bundle --no-tags --optimized-fetch --prune
+# phhusson/treble_device master を local_manifest に追加
+mkdir -p .repo/local_manifests
+cat <<EOF > .repo/local_manifests/roomservice.xml
+<manifest>
+    <project name="phhusson/treble_device" path="device/phh/treble" remote="github" revision="master"/>
+</manifest>
+EOF
 
+# repo sync
+repo sync -c -j"$jobs" --force-sync --no-clone-bundle --no-tags --optimized-fetch --prune
+
+#----------------------------------------
+# crDroid overlay 適用
+#----------------------------------------
+echo "Applying crDroid overlay..."
+# vendor/crdroid/config と overlay を phhusson repo にコピー
+cp -r vendor/crdroid/config device/phh/treble/vendor_crdroid_config
+cp -r device/phh/treble/overlay ./device/phh/treble/overlay_crdroid || true
+
+# generate.sh で PRODUCT_NAME を作成
+(cd device/phh/treble; bash generate.sh vendor_crdroid_config/common_full_phone.mk)
+
+#----------------------------------------
+# パッチ適用
+#----------------------------------------
 if [ -f "patches.zip" ]; then
     echo "Using local patches.zip..."
     rm -Rf patches
     unzip -q patches.zip
+    bash apply-patches.sh ./
 else
     echo "patches.zip not found. Please provide it in the current directory."
     exit 1
 fi
 
-bash apply-patches.sh ./
+#----------------------------------------
+# ビルド環境設定
+#----------------------------------------
+source build/envsetup.sh
 
-(cd device/phh/treble; bash generate.sh vendor/$rom/config/common_full_phone.mk)
+# overlay 適用後に lunch
+lunch treble_arm64_bgN-userdebug
 
-. build/envsetup.sh
+# ビルド
+m -j"$jobs" systemimage vendorimage
 
-repo manifest -r > release/$rom_fp/manifest.xml
-lunch treble_arm64_bgN android-16.0 userdebug
-
-if [ "$release" == true ];then
-    (
-        rm -Rf venv
-        pip install virtualenv
-        export PATH=$PATH:~/.local/bin/
-        virtualenv -p /usr/bin/python3 venv
-        source venv/bin/activate
-        pip install -r $originFolder/release/requirements.txt
-
-        python $originFolder/release/push.py "${rom^}" "$version" release/$rom_fp/
-        rm -Rf venv
-    )
-fi
+#----------------------------------------
+echo "Build finished. Output: out/target/product/treble_arm64_bgN/"
+echo "Release manifest stored in release/$rom_fp/"
