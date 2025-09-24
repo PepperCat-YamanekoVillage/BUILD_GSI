@@ -26,9 +26,6 @@ RUN useradd -m -s /bin/bash builder && \
 USER builder
 WORKDIR /home/builder
 
-RUN git config --global user.name "your username" \
-    git config --global user.email yourmail@example.com
-
 # キャッシュ領域
 RUN mkdir -p /home/builder/.ccache
 ENV USE_CCACHE=1
